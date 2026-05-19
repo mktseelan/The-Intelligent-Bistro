@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { orderRoutes } from "./routes/orderRoutes.js";
 
-dotenv.config();
+dotenv.config({ path: ".env.local" });
 
 const app = express();
 const port = Number(process.env.PORT || 4000);

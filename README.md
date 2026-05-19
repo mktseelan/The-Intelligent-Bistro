@@ -26,7 +26,7 @@ intelligent-bistro/
 
 ```bash
 cd backend
-cp .env.example .env
+edit .env.local
 npm install
 npm run dev
 ```
@@ -37,9 +37,9 @@ If `OPENAI_API_KEY` is left empty, the server will use the built-in fallback par
 
 ```bash
 cd mobile
-cp .env.example .env
+edit .env.local
 npm install
 npm start
 ```
 
-Set `EXPO_PUBLIC_API_BASE_URL` in `mobile/.env` to the backend URL you want the app to call.
+Set `EXPO_PUBLIC_API_BASE_URL` in `mobile/.env.local` to the backend URL you want the app to call.
