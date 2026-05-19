@@ -31,9 +31,8 @@ const starterMessage: AssistantMessage = {
 };
 
 function HeaderStats() {
-  const items = useCartStore((state) => state.items);
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const cartTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const itemCount = useCartStore((state) => state.getCartCount());
+  const cartTotal = useCartStore((state) => state.getCartTotal());
 
   return (
     <View className="mt-6 flex-row gap-3">
@@ -117,8 +116,8 @@ function CartSection() {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
   const clearCart = useCartStore((state) => state.clearCart);
-  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const cartTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const cartCount = useCartStore((state) => state.getCartCount());
+  const cartTotal = useCartStore((state) => state.getCartTotal());
 
   return (
     <View className="mt-8 rounded-[30px] border border-white/70 bg-white px-5 py-5 shadow-card">
