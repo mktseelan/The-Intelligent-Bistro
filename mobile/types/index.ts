@@ -19,16 +19,28 @@ export type CartItem = {
   modifiers: string[];
 };
 
+export type CartItemReference = {
+  itemId?: string;
+  name?: string;
+};
+
+export type CartAddItemInput = CartItemReference & {
+  price?: number;
+};
+
 export type AIAction =
   | {
       type: "ADD_ITEM";
-      itemId: string;
+      itemId?: string;
+      name?: string;
+      price?: number;
       quantity: number;
-      modifiers: string[];
+      modifiers?: string[];
     }
   | {
       type: "REMOVE_ITEM";
-      itemId: string;
+      itemId?: string;
+      name?: string;
     }
   | {
       type: "UPDATE_QUANTITY";
@@ -49,4 +61,3 @@ export type AssistantMessage = {
   role: "assistant" | "user";
   text: string;
 };
-
