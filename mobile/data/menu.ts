@@ -92,3 +92,14 @@ export const menuItems: MenuItem[] = [
   },
 ];
 
+const popularItemIds = [
+  "spicy-chicken-sandwich",
+  "classic-cheeseburger",
+  "truffle-fries",
+  "grilled-salmon-bowl",
+  "chocolate-lava-cake",
+] as const;
+
+export const popularMenuItems = popularItemIds
+  .map((itemId) => menuItems.find((item) => item.itemId === itemId))
+  .filter((item): item is MenuItem => Boolean(item));

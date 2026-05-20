@@ -22,7 +22,7 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react-native";
-import { menuItems, menuSections } from "./data/menu";
+import { menuItems, menuSections, popularMenuItems } from "./data/menu";
 import { sendOrderMessage } from "./services/api";
 import { useCartStore } from "./store/cartStore";
 import type { AssistantMessage, MenuItem, MenuSection } from "./types";
@@ -447,7 +447,7 @@ export default function App() {
 
   const visibleMenuItems =
     selectedSection === "Popular"
-      ? menuItems.filter((item) => item.isPopular)
+      ? popularMenuItems
       : menuItems.filter((item) => item.category === selectedSection);
 
   function handleCartPress() {
@@ -525,8 +525,14 @@ export default function App() {
 
               <SectionHeading
                 eyebrow="Explore"
-                title="Curated bistro favorites"
-                detail="Browse by craving, then add items manually or let the assistant assemble the order for you."
+                title={
+                  selectedSection === "Popular" ? "Popular right now" : `Curated ${selectedSection.toLowerCase()}`
+                }
+                detail={
+                  selectedSection === "Popular"
+                    ? "A hand-picked list of guest favorites and signature best-sellers."
+                    : "Browse by craving, then add items manually or let the assistant assemble the order for you."
+                }
               />
 
               <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-1">
@@ -545,6 +551,8 @@ export default function App() {
                   <MenuCard key={item.itemId} item={item} onAdd={() => addItem(item)} />
                 ))}
               </View>
+
+              <AssistantSection />
             </View>
           </ScrollView>
         )}
