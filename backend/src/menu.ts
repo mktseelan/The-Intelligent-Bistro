@@ -40,7 +40,7 @@ export const menuItems: MenuItem[] = [
     id: "large-water",
     name: "Large Water",
     price: 3,
-    aliases: ["large water", "water"],
+    aliases: ["large water", "water bottle", "water bottles", "water"],
   },
   {
     id: "iced-tea",
@@ -57,4 +57,3 @@ export const menuItems: MenuItem[] = [
 ];
 
 export const menuItemsById = new Map(menuItems.map((item) => [item.id, item]));
-

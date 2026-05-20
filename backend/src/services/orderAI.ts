@@ -8,7 +8,7 @@ import {
   type OrderResponse,
 } from "../schemas/orderSchema.js";
 
-const openAIModel = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+let cachedOpenAIClient: OpenAI | null | undefined;
 const numberWords: Record<string, number> = {
   a: 1,
   an: 1,
@@ -81,6 +81,8 @@ function extractUpdateQuantity(message: string, alias: string) {
     new RegExp(`${escapedAlias}\\s+(?:quantity\\s+)?(?:to\\s+)?(\\d+)`),
     new RegExp(`(?:make|set|change|update)\\s+${escapedAlias}\\s+(?:quantity\\s+)?(?:to\\s+)?(\\d+)`),
     new RegExp(`(?:make|set|change|update)\\s+${escapedAlias}\\s+quantity\\s+(\\d+)`),
+    new RegExp(`(?:make|set|change|update)\\s+quantity\\s+of\\s+${escapedAlias}\\s+(?:to\\s+)?(\\d+)`),
+    new RegExp(`(?:make|set|change|update)\\s+the\\s+quantity\\s+of\\s+${escapedAlias}\\s+(?:to\\s+)?(\\d+)`),
   ];
 
   for (const pattern of patterns) {
@@ -149,7 +151,35 @@ function parseFallbackOrder({ message }: OrderRequest): OrderResponse {
   };
 }
 
+function shouldUseFallbackFirst(response: OrderResponse) {
+  return response.actions.length > 0;
+}
+
+function getOpenAIModel() {
+  return process.env.OPENAI_MODEL || "gpt-4.1-nano";
+}
+
+function getOpenAIClient() {
+  if (cachedOpenAIClient !== undefined) {
+    return cachedOpenAIClient;
+  }
+
+  cachedOpenAIClient = process.env.OPENAI_API_KEY
+    ? new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      })
+    : null;
+
+  return cachedOpenAIClient;
+}
+
 function buildPrompt(payload: OrderRequest) {
+  const menuContext = menuItems.map(({ id, name, aliases }) => ({
+    id,
+    name,
+    aliases,
+  }));
+
   return [
     "You convert restaurant ordering chat into structured cart actions.",
     "Return JSON only. No markdown, no explanation.",
@@ -170,7 +200,7 @@ function buildPrompt(payload: OrderRequest) {
     "For UPDATE_QUANTITY, use { type, itemId, quantity }.",
     "For CLEAR_CART, use { type }.",
     "Use only these menu items and IDs:",
-    JSON.stringify(menuItems),
+    JSON.stringify(menuContext),
     "Current cart:",
     JSON.stringify(payload.cart),
     "User message:",
@@ -179,16 +209,14 @@ function buildPrompt(payload: OrderRequest) {
 }
 
 async function parseWithOpenAI(payload: OrderRequest): Promise<OrderResponse | null> {
-  if (!process.env.OPENAI_API_KEY) {
+  const openAIClient = getOpenAIClient();
+
+  if (!openAIClient) {
     return null;
   }
 
-  const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
-  const response = await client.responses.create({
-    model: openAIModel,
+  const response = await openAIClient.responses.create({
+    model: getOpenAIModel(),
     input: buildPrompt(payload),
   });
 
@@ -202,6 +230,12 @@ async function parseWithOpenAI(payload: OrderRequest): Promise<OrderResponse | n
 }
 
 export async function generateOrderResponse(payload: OrderRequest): Promise<OrderResponse> {
+  const fallbackResult = parseFallbackOrder(payload);
+
+  if (shouldUseFallbackFirst(fallbackResult)) {
+    return fallbackResult;
+  }
+
   try {
     const openAIResult = await parseWithOpenAI(payload);
 
@@ -212,7 +246,7 @@ export async function generateOrderResponse(payload: OrderRequest): Promise<Orde
     console.warn("Falling back to rule-based parser:", error);
   }
 
-  return parseFallbackOrder(payload);
+  return fallbackResult;
 }
 
 export function applyActionsPreview(cart: CartItem[], actions: AIAction[]) {
@@ -264,4 +298,3 @@ export function applyActionsPreview(cart: CartItem[], actions: AIAction[]) {
     );
   }, cart);
 }
-
