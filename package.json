@@ -1,0 +1,11 @@
+{
+  "name": "the-intelligent-bistro",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix mobile run start",
+    "build:backend": "npm --prefix backend run build",
+    "typecheck:frontend": "npm --prefix mobile run typecheck"
+  }
+}

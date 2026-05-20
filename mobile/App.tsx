@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import {
+  ArrowLeft,
   Bot,
   ChefHat,
   Flame,
@@ -384,86 +385,169 @@ function AssistantSection() {
   );
 }
 
+function CartScreen({ onBack }: { onBack: () => void }) {
+  const cartCount = useCartStore((state) => state.getCartCount());
+  const cartTotal = useCartStore((state) => state.getCartTotal());
+
+  return (
+    <ScrollView className="flex-1">
+      <View className="bg-parchment px-5 pb-20 pt-4">
+        <View className="overflow-hidden rounded-[36px] bg-ink px-5 pb-7 pt-6 shadow-float">
+          <View className="absolute -right-16 -top-12 h-44 w-44 rounded-full bg-white/5" />
+          <View className="absolute right-8 top-24 h-24 w-24 rounded-full bg-[#C26A3D]/20" />
+
+          <Pressable
+            className="mb-5 flex-row items-center self-start rounded-full bg-white/10 px-4 py-3"
+            onPress={onBack}
+          >
+            <ArrowLeft color="#F7F0E8" size={16} />
+            <Text className="ml-2 text-sm font-semibold text-cream">Back to menu</Text>
+          </Pressable>
+
+          <View className="flex-row items-start justify-between gap-4">
+            <View className="flex-1">
+              <View className="flex-row items-center gap-3">
+                <View className="rounded-2xl bg-white/10 p-3">
+                  <ShoppingBag color="#F7F0E8" size={20} />
+                </View>
+                <View className="rounded-full bg-white/10 px-3 py-2">
+                  <Text className="text-[11px] font-semibold uppercase tracking-[1.8px] text-sand">
+                    Ready to review
+                  </Text>
+                </View>
+              </View>
+
+              <Text className="mt-5 text-[34px] font-bold leading-10 text-cream">Your cart</Text>
+              <Text className="mt-3 text-[16px] leading-6 text-sand">
+                Review quantities, remove items, or ask the AI maitre d&apos; to adjust the order for you.
+              </Text>
+            </View>
+
+            <View className="rounded-[26px] bg-white/10 px-4 py-4">
+              <Text className="text-[11px] font-semibold uppercase tracking-[1.8px] text-sand">Total</Text>
+              <Text className="mt-2 text-right text-[28px] font-bold text-cream">${cartTotal.toFixed(2)}</Text>
+              <Text className="mt-1 text-right text-sm text-sand">{cartCount} items</Text>
+            </View>
+          </View>
+        </View>
+
+        <CartSection />
+        <AssistantSection />
+      </View>
+    </ScrollView>
+  );
+}
+
 export default function App() {
   const selectedSection = useCartStore((state) => state.selectedSection);
   const setSelectedSection = useCartStore((state) => state.setSelectedSection);
   const addItem = useCartStore((state) => state.addItem);
+  const cartCount = useCartStore((state) => state.getCartCount());
+  const [activeScreen, setActiveScreen] = useState<"menu" | "cart">("menu");
 
   const visibleMenuItems =
     selectedSection === "Popular"
       ? menuItems.filter((item) => item.isPopular)
       : menuItems.filter((item) => item.category === selectedSection);
 
+  function handleCartPress() {
+    setActiveScreen("cart");
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#FBF5EF" }}>
         <StatusBar style="dark" />
-        <ScrollView className="flex-1">
-          <View className="bg-parchment px-5 pb-20 pt-4">
-            <View className="overflow-hidden rounded-[36px] bg-blush px-5 pb-7 pt-6 shadow-float">
-              <View className="absolute -right-16 -top-12 h-44 w-44 rounded-full bg-[#C26A3D]/15" />
-              <View className="absolute right-10 top-24 h-24 w-24 rounded-full bg-[#7B3F35]/10" />
-              <View className="absolute -left-14 bottom-0 h-32 w-32 rounded-full bg-[#6D7A51]/10" />
+        {activeScreen === "cart" ? (
+          <CartScreen onBack={() => setActiveScreen("menu")} />
+        ) : (
+          <ScrollView className="flex-1">
+            <View className="bg-parchment px-5 pb-20 pt-4">
+              <View className="overflow-hidden rounded-[36px] bg-blush px-5 pb-7 pt-6 shadow-float">
+                <View className="absolute -right-16 -top-12 h-44 w-44 rounded-full bg-[#C26A3D]/15" />
+                <View className="absolute right-10 top-24 h-24 w-24 rounded-full bg-[#7B3F35]/10" />
+                <View className="absolute -left-14 bottom-0 h-32 w-32 rounded-full bg-[#6D7A51]/10" />
 
-              <View className="flex-row items-start justify-between gap-4">
-                <View className="flex-1">
-                  <View className="flex-row items-center gap-2">
-                    <View className="rounded-full bg-white/80 p-2 shadow-card">
-                      <ChefHat color="#6E4E37" size={18} />
+                <View className="flex-row items-start justify-between gap-4">
+                  <View className="flex-1">
+                    <View className="flex-row items-center gap-2">
+                      <View className="rounded-full bg-white/80 p-2 shadow-card">
+                        <ChefHat color="#6E4E37" size={18} />
+                      </View>
+                      <View className="rounded-full bg-white/80 px-3 py-2 shadow-card">
+                        <Text className="text-[11px] font-semibold uppercase tracking-[1.8px] text-cocoa">
+                          Table-ready ordering
+                        </Text>
+                      </View>
                     </View>
-                    <View className="rounded-full bg-white/80 px-3 py-2 shadow-card">
-                      <Text className="text-[11px] font-semibold uppercase tracking-[1.8px] text-cocoa">
-                        Table-ready ordering
-                      </Text>
-                    </View>
+
+                    <Text className="mt-5 text-[36px] font-bold leading-10 text-ink">
+                      The Intelligent Bistro
+                    </Text>
+                    <Text className="mt-3 text-[18px] font-medium leading-7 text-cocoa">
+                      Order smarter with your AI maître d’
+                    </Text>
+                    <Text className="mt-4 max-w-[310px] text-[15px] leading-6 text-cocoa">
+                      A warm, elevated ordering experience with premium menu browsing and conversational cart control.
+                    </Text>
                   </View>
 
-                  <Text className="mt-5 text-[36px] font-bold leading-10 text-ink">
-                    The Intelligent Bistro
-                  </Text>
-                  <Text className="mt-3 text-[18px] font-medium leading-7 text-cocoa">
-                    Order smarter with your AI maître d’
-                  </Text>
-                  <Text className="mt-4 max-w-[310px] text-[15px] leading-6 text-cocoa">
-                    A warm, elevated ordering experience with premium menu browsing and conversational cart control.
-                  </Text>
+                  <View className="items-end gap-3">
+                    <Pressable
+                      className="rounded-[26px] bg-white/90 p-4 shadow-card"
+                      onPress={handleCartPress}
+                    >
+                      <View>
+                        <ShoppingBag color="#7B3F35" size={24} />
+                        {cartCount > 0 ? (
+                          <View className="absolute -right-2 -top-2 min-w-[22px] rounded-full bg-burgundy px-1.5 py-1">
+                            <Text className="text-center text-[11px] font-bold text-cream">
+                              {cartCount}
+                            </Text>
+                          </View>
+                        ) : null}
+                      </View>
+                    </Pressable>
+
+                    <View className="rounded-[22px] bg-white/80 px-3 py-2 shadow-card">
+                      <View className="flex-row items-center gap-2">
+                        <Sparkles color="#7B3F35" size={14} />
+                        <Text className="text-[11px] font-semibold uppercase tracking-[1.6px] text-cocoa">
+                          Open cart
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
                 </View>
 
-                <View className="rounded-[26px] bg-white/85 p-4 shadow-card">
-                  <Sparkles color="#7B3F35" size={24} />
-                </View>
+                <HeaderStats />
               </View>
 
-              <HeaderStats />
+              <SectionHeading
+                eyebrow="Explore"
+                title="Curated bistro favorites"
+                detail="Browse by craving, then add items manually or let the assistant assemble the order for you."
+              />
+
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-1">
+                {menuSections.map((section) => (
+                  <CategoryChip
+                    key={section}
+                    label={section}
+                    selected={selectedSection === section}
+                    onPress={() => setSelectedSection(section)}
+                  />
+                ))}
+              </ScrollView>
+
+              <View className="mt-6 gap-5">
+                {visibleMenuItems.map((item) => (
+                  <MenuCard key={item.itemId} item={item} onAdd={() => addItem(item)} />
+                ))}
+              </View>
             </View>
-
-            <SectionHeading
-              eyebrow="Explore"
-              title="Curated bistro favorites"
-              detail="Browse by craving, then add items manually or let the assistant assemble the order for you."
-            />
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-1">
-              {menuSections.map((section) => (
-                <CategoryChip
-                  key={section}
-                  label={section}
-                  selected={selectedSection === section}
-                  onPress={() => setSelectedSection(section)}
-                />
-              ))}
-            </ScrollView>
-
-            <View className="mt-6 gap-5">
-              {visibleMenuItems.map((item) => (
-                <MenuCard key={item.itemId} item={item} onAdd={() => addItem(item)} />
-              ))}
-            </View>
-
-            <CartSection />
-            <AssistantSection />
-          </View>
-        </ScrollView>
+          </ScrollView>
+        )}
       </SafeAreaView>
     </SafeAreaProvider>
   );

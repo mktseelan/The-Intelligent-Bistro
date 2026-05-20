@@ -1,45 +1,67 @@
+# The Intelligent Bistro
 
-## Project Structure
+React Native Expo frontend plus a Node.js Express backend for a polished restaurant ordering MVP with conversational cart updates.
 
-intelligent-bistro/
-  backend/
-  mobile/
+## Repository Structure
+
+```text
+the-intelligent-bistro/
+  backend/   # Express + TypeScript AI ordering API
+  mobile/    # Expo + React Native frontend
+```
 
 ## Frontend
 
-- React Native with Expo
-- TypeScript
-- NativeWind for styling
-- Zustand for cart state
-- Axios for API calls
-- Single-screen premium mobile UI for menu, cart, and AI chat
+- Expo + React Native + TypeScript
+- NativeWind styling
+- Zustand cart state
+- Axios API client
+- Premium mobile UI for menu browsing, cart management, and AI chat
 
 ## Backend
 
-- Node.js + Express
-- TypeScript
-- Zod for request and AI JSON validation
-- OpenAI API integration with deterministic fallback parsing
+- Node.js + Express + TypeScript
+- Zod validation for requests and AI output
+- OpenAI integration with deterministic fallback parsing
 - CORS + dotenv
 
-## Run The Backend
+## Setup
+
+Install dependencies in each app:
+
+```bash
+cd backend && npm install
+cd ../mobile && npm install
+```
+
+Create local env files from the examples:
+
+```bash
+cp backend/.env.example backend/.env.local
+cp mobile/.env.example mobile/.env.local
+```
+
+If `OPENAI_API_KEY` is empty, the backend uses the built-in fallback parser.
+
+## Run
+
+Start the backend:
 
 ```bash
 cd backend
-edit .env.local
-npm install
 npm run dev
 ```
 
-If `OPENAI_API_KEY` is left empty, the server will use the built-in fallback parser.
-
-## Run The Mobile App
+Start the frontend:
 
 ```bash
 cd mobile
-edit .env.local
-npm install
 npm start
 ```
 
-Set `EXPO_PUBLIC_API_BASE_URL` in `mobile/.env.local` to the backend URL you want the app to call.
+Or run from the repo root:
+
+```bash
+npm run dev:backend
+npm run dev:frontend
+```
